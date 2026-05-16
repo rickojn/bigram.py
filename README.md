@@ -1,6 +1,6 @@
 # Bigram Language Model
 
-A simple word-level bigram language model in Python. Feed it any text file and it will learn which words tend to follow which other words, then let you generate new text from a prompt.
+A simple word-level bigram language model in Python. Feed it any text file and it will learn which words tend to follow which other words, then let you generate new text from a prompt. It also produces an interactive HTML visualisation of the full bigram table.
 
 ---
 
@@ -45,8 +45,8 @@ If you see `Python 3.10.x` or higher you are good to go. Otherwise:
 ### Option B — Clone with Git (if you have Git installed)
 
 ```
-git clone https://github.com/rickojn/bigram.py.git
-cd bigram.py
+git clone https://github.com/<your-username>/<your-repo>.git
+cd <your-repo>
 ```
 
 ---
@@ -74,6 +74,7 @@ Reading 'pride_and_prejudice_p1-5.txt' ...
   Total tokens   : 1,824
   Vocabulary size: 482  (including EOS)
   Bigram table built.
+  Visualisation  : /path/to/pride_and_prejudice_p1-5_bigram_table.html
 
 Max tokens to generate (Enter = EOS only, 'q' to quit):
 ```
@@ -115,6 +116,23 @@ Type `q` and press Enter at any prompt.
 
 ---
 
+## Step 6 — Explore the bigram table
+
+Every time you run the script, a self-contained HTML file is written to the same folder as your text file, named after it — for example `pride_and_prejudice_p1-5_bigram_table.html`. Open it in any web browser by double-clicking it; no internet connection is required.
+
+The table shows every word in the vocabulary along both axes. Each cell represents the pair (row word → column word). Cells are colour-coded from dark (zero or rare) through purple to gold (most frequent), and the raw count is printed inside every non-zero cell.
+
+**Controls:**
+
+| Control | What it does |
+|---|---|
+| **Filter token** box | Type any word or substring to show only matching rows and/or columns |
+| **Row & Col / Row only / Col only** | Choose which axis the filter applies to |
+| **Counts / Probabilities** toggle | Switch cell labels between raw bigram counts and conditional probabilities P(column \| row) |
+| **Hover any cell** | Shows a tooltip with the token pair, exact count, and probability to four decimal places |
+
+---
+
 ## Using your own text file
 
 You can use any plain `.txt` file instead of the provided one:
@@ -123,7 +141,7 @@ You can use any plain `.txt` file instead of the provided one:
 python bigram_model.py my_book.txt
 ```
 
-The larger and more varied the text, the more interesting the generated output will be. The model works best on prose with normal sentence punctuation.
+The larger and more varied the text, the more interesting the generated output will be. The model works best on prose with normal sentence punctuation. A corresponding `my_book_bigram_table.html` will be created automatically.
 
 ---
 
@@ -135,3 +153,4 @@ The larger and more varied the text, the more interesting the generated output w
 | `No such file or directory` | Make sure your terminal is in the same folder as `bigram_model.py` (see Step 3) |
 | `Unknown token(s): [...]` | The word you typed is not in the training text — try a different word from the hint shown |
 | Nothing generated, stops immediately | The last word in your prompt is always followed by a sentence end in the text — try a different prompt |
+| HTML file not opening | Try right-clicking it and choosing "Open with" then selecting your browser |
