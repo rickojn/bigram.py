@@ -45,8 +45,8 @@ If you see `Python 3.10.x` or higher you are good to go. Otherwise:
 ### Option B — Clone with Git (if you have Git installed)
 
 ```
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/rickojn/bigram.py.git
+cd bigram.py
 ```
 
 ---
