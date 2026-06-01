@@ -658,7 +658,7 @@ def pretty_print(prompt_tokens, generated):
     prompt_str = " ".join(prompt_tokens)
     gen_str = " ".join("<EOS>" if t == EOS else t for t in generated)
     full = prompt_tokens + generated
-    readable = " ".join("." if t == EOS else t for t in full)
+    readable = " ".join(t for t in full)
     print("\n" + "-" * 60)
     print(f"PROMPT   : {prompt_str}")
     print(f"GENERATED: {gen_str}")
