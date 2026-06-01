@@ -28,8 +28,12 @@ EOS = "__eos__"
 
 def tokenise(text: str) -> list[str]:
     text = text.lower()
-    text = re.sub(r'[.!?]+', f' {EOS} ', text)
-    text = re.sub(r"[^\w\s']", ' ', text)
+    # One or more newlines become an EOS token
+    text = re.sub(r'\n+', f' {EOS} ', text)
+    # . ! ? are kept as individual tokens
+    text = re.sub(r'([.!?])', r' \1 ', text)
+    # Strip remaining punctuation except apostrophes, . ! ?
+    text = re.sub(r"[^\w\s'.!?]", ' ', text)
     return text.split()
 
 
@@ -82,9 +86,9 @@ def generate(prompt_tokens, max_new_tokens, token_to_idx, idx_to_token, bigram_c
         idx = token_to_idx[current]
         probs = softmax_row(bigram_counts[idx])
         next_token = sample_next(probs, idx_to_token)
-        generated.append(next_token)
         if next_token == EOS:
             break
+        generated.append(next_token)
         current = next_token
     return generated
 
@@ -203,11 +207,11 @@ def export_html(path: str, idx_to_token: list[str], bigram_counts: list[list[int
   }}
   input[type=text]:focus {{ border-color: var(--accent2); }}
 
+  /* Filter axis button group */
   .toggle-group {{
     display: flex;
     gap: 0.25rem;
   }}
-
   .toggle-group button {{
     background: var(--bg);
     border: 1px solid var(--border);
@@ -224,6 +228,57 @@ def export_html(path: str, idx_to_token: list[str], bigram_counts: list[list[int
     background: var(--accent2);
     border-color: var(--accent2);
     color: #fff;
+  }}
+
+  /* Counts / Probabilities pill toggle */
+  .pill-toggle {{
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }}
+  .pill-toggle span {{
+    transition: color 0.2s;
+  }}
+  .pill-toggle span.active {{
+    color: var(--text);
+  }}
+  .pill-switch {{
+    position: relative;
+    width: 2.6rem;
+    height: 1.4rem;
+    cursor: pointer;
+  }}
+  .pill-switch input {{
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }}
+  .pill-track {{
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 1rem;
+    transition: background 0.2s;
+  }}
+  .pill-switch input:checked + .pill-track {{
+    background: var(--accent2);
+  }}
+  .pill-thumb {{
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+    width: 1rem;
+    height: 1rem;
+    background: var(--text);
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }}
+  .pill-switch input:checked ~ .pill-thumb {{
+    transform: translateX(1.2rem);
   }}
 
   .hint {{
@@ -356,9 +411,14 @@ def export_html(path: str, idx_to_token: list[str], bigram_counts: list[list[int
     <button            id="btn-row"    onclick="setMode('row')">Row only</button>
     <button            id="btn-col"    onclick="setMode('col')">Col only</button>
   </div>
-  <div class="toggle-group">
-    <button class="active" id="btn-count" onclick="setDisplay('count')">Counts</button>
-    <button            id="btn-prob"  onclick="setDisplay('prob')">Probabilities</button>
+  <div class="pill-toggle">
+    <span id="lbl-count" class="active">COUNTS</span>
+    <label class="pill-switch">
+      <input type="checkbox" id="display-toggle" onchange="setDisplay(this.checked ? 'prob' : 'count')">
+      <div class="pill-track"></div>
+      <div class="pill-thumb"></div>
+    </label>
+    <span id="lbl-prob">PROBS</span>
   </div>
   <div class="legend">
     <span class="legend-swatch" style="background:var(--cell-zero)"></span>0
@@ -514,8 +574,8 @@ function moveTip(e) {{
 // ── Display mode (count vs prob) ───────────────────────────────────────────
 function setDisplay(mode) {{
   displayMode = mode;
-  document.getElementById('btn-count').classList.toggle('active', mode === 'count');
-  document.getElementById('btn-prob').classList.toggle('active',  mode === 'prob');
+  document.getElementById('lbl-count').classList.toggle('active', mode === 'count');
+  document.getElementById('lbl-prob').classList.toggle('active',  mode === 'prob');
   // Update cell text for currently visible non-zero cells
   for (let ri = 0; ri < V; ri++) {{
     for (let ci = 0; ci < V; ci++) {{
